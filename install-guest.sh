@@ -74,6 +74,14 @@ apply_bluetooth_fix()
     install_packages
 }
 
+crd_set_resolution()
+{
+    resolution=$1
+    echo "Setting Chrome Remote Desktop resolution to $resolution"
+    sed_command="s/DEFAULT_SIZE_NO_RANDR = \"[0-9]*x[0-9]*\"/DEFAULT_SIZE_NO_RANDR = \"$resolution\"/g"
+    sed -i "$sed_command" /opt/google/chrome-remote-desktop/chrome-remote-desktop
+}
+
 install_console()
 {
     echo "Installing console software..."
@@ -160,6 +168,8 @@ install_gui()
 
 install_desktop()
 {
+    resolution=$1
+
     echo "Installing virtual desktop software..."
 
     apply_bluetooth_fix
@@ -169,6 +179,8 @@ install_desktop()
     install_packages_from_urls \
             https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
             https://dl.google.com/linux/direct/chrome-remote-desktop_current_amd64.deb
+
+    crd_set_resolution $resolution
 
     disable_services \
         apport \
@@ -265,6 +277,7 @@ Options:
     -c: Install console software
     -g: Install GUI (as well as console) software
     -d: Install a virtual desktop environment
+    -R <resolution>: Chrome Remote Desktop screen resolution (default 1920x1080)
     -t <timezone>: Set timezone (e.g. America/Vancouver)
     -l <language:region>: Set language and region (e.g. en:US)
     -k <layout:model>: Set keyboard layout and model (e.g. us:pc105)
@@ -292,8 +305,9 @@ SET_LANGUAGE_REGION=
 SET_KEYBOARD_LAYOUT_MODEL=
 SETUP_USER=
 FORCE_CREATE_USER=false
+VIRTUAL_RESOLUTION=1920x1080
 
-while getopts "?cgdt:l:k:u:U" o; do
+while getopts "?cgdR:t:l:k:u:U" o; do
     case "$o" in
         \?)
             show_help
@@ -307,6 +321,9 @@ while getopts "?cgdt:l:k:u:U" o; do
             ;;
         d)
             INSTALL_DESKTOP=true
+            ;;
+        R)
+            VIRTUAL_RESOLUTION=$OPTARG
             ;;
         t)
             SET_TIMEZONE=$OPTARG
@@ -353,16 +370,16 @@ if [ ! -z "$SET_TIMEZONE" ] || [ ! -z "$SET_LANGUAGE_REGION" ] || [ ! -z "$SET_K
     fi
 fi
 
-if [ "$INSTALL_CONSOLE" == "true" ] ||  [ "$INSTALL_GUI" == "true" ]; then
+if [ "$INSTALL_CONSOLE" == "true" ] ||  [ "$INSTALL_GUI" == "true" ] || [ "$INSTALL_DESKTOP" == "true" ]; then
     install_console
 fi
 
-if [ "$INSTALL_GUI" == "true" ]; then
+if [ "$INSTALL_GUI" == "true" ] || [ "$INSTALL_DESKTOP" == "true" ]; then
     install_gui
 fi
 
 if [ "$INSTALL_DESKTOP" == "true" ]; then
-    install_desktop
+    install_desktop $VIRTUAL_RESOLUTION
 fi
 
 if [ ! -z "$SETUP_USER" ]; then
