@@ -89,12 +89,14 @@ install_console()
         curl \
         debconf-utils \
         devscripts \
+        docker.io \
         dpkg-dev \
         flex \
         fuse \
         git \
         git-buildpackage \
         libvirt-bin \
+        lxd \
         mtools \
         nmap \
         net-tools \
@@ -123,14 +125,11 @@ install_console()
         uvtool \
         virtinst
 
-        # docker.io \
-        # lxd \
-
     # Disabled until lxd snaps are fixed.
     # https://discuss.linuxcontainers.org/t/how-to-install-lxd-in-a-lxd-container-that-is-being-built-in-a-lxd-container/1651
-    install_snaps \
-        docker \
-        lxd
+    # install_snaps \
+    #     docker \
+    #     lxd
 
     snap install multipass --beta --classic
 
