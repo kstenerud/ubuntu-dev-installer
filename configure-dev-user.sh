@@ -213,7 +213,7 @@ modify_profile ${USERNAME} "${FULL_NAME}" "${EMAIL}" $INSTALL_MODE
 configure_quilt ${USERNAME}
 configure_dput ${USERNAME}
 configure_git ${USERNAME} "${GIT_USERNAME}" "${FULL_NAME}" "${EMAIL}" "${LP_NAME}"
-add_user_to_required_groups
+add_user_to_required_groups ${USERNAME}
 chown -R ${USERNAME}:$(id -g ${USERNAME}) "$(get_homedir $USERNAME)
 
 
