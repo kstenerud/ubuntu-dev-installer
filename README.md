@@ -12,6 +12,11 @@ Scripts
 Configure a user for development, adding various configuration files for git, quilt, etc, and modifying their `.profile`.
 
 
+### download-virtual-images.sh
+
+Pre-download various VM and container images for currently active Ubuntu releases.
+
+
 ### install-guest.sh
 
 This script sets up the actual development environment inside a guest environment. You can run this on anything from bare metal to a VM to a container.
