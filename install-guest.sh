@@ -277,7 +277,7 @@ Options:
     -c: Install console software
     -g: Install GUI (as well as console) software
     -d: Install a virtual desktop environment
-    -R <resolution>: Chrome Remote Desktop screen resolution (default 1920x1080)
+    -r <resolution>: Chrome Remote Desktop screen resolution (default 1920x1080)
     -t <timezone>: Set timezone (e.g. America/Vancouver)
     -l <language:region>: Set language and region (e.g. en:US)
     -k <layout:model>: Set keyboard layout and model (e.g. us:pc105)
@@ -307,7 +307,7 @@ SETUP_USER=
 FORCE_CREATE_USER=false
 VIRTUAL_RESOLUTION=1920x1080
 
-while getopts "?cgdR:t:l:k:u:U" o; do
+while getopts "?cgdr:t:l:k:u:U" o; do
     case "$o" in
         \?)
             show_help
@@ -322,7 +322,7 @@ while getopts "?cgdR:t:l:k:u:U" o; do
         d)
             INSTALL_DESKTOP=true
             ;;
-        R)
+        r)
             VIRTUAL_RESOLUTION=$OPTARG
             ;;
         t)

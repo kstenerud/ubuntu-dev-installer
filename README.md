@@ -117,6 +117,5 @@ Install via installation media.
 This will create a fully virtualized Mate desktop environment with Ubuntu dev tools, x2go, and Chrome Remote Desktop installed. You'll need to connect first via x2go in order to log in to Chrome and enable Chrome Remote Desktop.
 
     git clone https://github.com/kstenerud/ubuntu-dev-installer.git
-    useradd --create-home --shell /bin/bash --user-group karl
     cd ubuntu-dev-installer
-    ./install-guest.sh -g -d -t Europe/Berlin -l en:US -k us:pc105 -u karl
+    ./install-guest.sh -d -t Europe/Berlin -l en:US -k us:pc105 -u karl -U
