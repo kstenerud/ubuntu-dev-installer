@@ -11,6 +11,12 @@ file_contains()
     grep "$contents" "$file" >/dev/null 2>&1
 }
 
+get_homedir()
+{
+    user=$1
+    eval echo "~$user"
+}
+
 add_to_file()
 {
     file="$1"
@@ -41,7 +47,7 @@ modify_profile()
     full_name="$2"
     email="$3"
     install_mode=$4
-    profile="~${username}/.profile"
+    profile="$(get_homedir $username)/.profile"
 
     add_to_file "$profile" "export DEBFULLNAME=\"${full_name}\""
     add_to_file "$profile" "export DEBEMAIL=\"${email}\""
@@ -57,7 +63,7 @@ modify_profile()
 configure_quilt()
 {
     username=$1
-    quiltrc="~${username}/.quiltrc"
+    quiltrc="$(get_homedir $username)/.quiltrc"
 
     if [ ! -f "$quiltrc" ]; then
         echo 'd=. ; while [ ! -d $d/debian -a `readlink -e $d` != / ]; do d=$d/..; done
@@ -77,7 +83,7 @@ fi' > "$quiltrc"
 configure_dput()
 {
     username=$1
-    dput_cf="~${username}/.dput.cf"
+    dput_cf="$(get_homedir $username)/.dput.cf"
 
     if [ ! -f "$dput_cf" ]; then
         echo '[DEFAULT]
@@ -101,7 +107,7 @@ configure_git()
     full_name="$3"
     email="$4"
     lp_name="$5"
-    gitconfig="~${username}.gitconfig"
+    gitconfig="$(get_homedir $username).gitconfig"
 
     if ! file_contains "$gitconfig" "[log]"; then
         echo "[log]" >> "$gitconfig"
@@ -208,7 +214,7 @@ configure_quilt ${USERNAME}
 configure_dput ${USERNAME}
 configure_git ${USERNAME} "${GIT_USERNAME}" "${FULL_NAME}" "${EMAIL}" "${LP_NAME}"
 add_user_to_required_groups
-chown -R ${USERNAME}:$(id -g ${USERNAME}) "~${USERNAME}"
+chown -R ${USERNAME}:$(id -g ${USERNAME}) "$(get_homedir $USERNAME)
 
 
 echo 'Dev user configured successfully. Remember to set:

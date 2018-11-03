@@ -3,6 +3,12 @@ set -eu
 
 # Install and configure a host machine for VMs and containers
 
+get_homedir()
+{
+    user=$1
+    eval echo "~$user"
+}
+
 sanitize_filename()
 {
     filename="$(basename "$1" | tr -cd 'A-Za-z0-9_.')"
@@ -122,7 +128,7 @@ setup_user()
     add_subuid_subgid_mapping $user
 
     make_user_paths $user \
-        "~${user}/bin"
+        "$(get_homedir $user)/bin"
 }
 
 install_console()
