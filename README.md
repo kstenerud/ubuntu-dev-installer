@@ -7,6 +7,10 @@ Scripts to help setting up a development environment primarily for ubuntu server
 Scripts
 -------
 
+### configure-dev-user.sh
+
+Configure a user for development, adding various configuration files for git, quilt, etc, and modifying their `.profile`.
+
 
 ### install-guest.sh
 
@@ -24,14 +28,25 @@ Currently, a containerized host cannot host containers that attempt to install s
 Modifies a container to allow it to run VMs and containers.
 
 
-### map-path.sh
+### map-vm-paths.sh
 
-Relocates a path and bind-mounts from the original location. Use this to relocate big directories to another volume.
+Relocates and bind-mounts all existing VM and container directories on a host to save space on a boot drive:
+
+ * /var/lib/libvirt
+ * /var/lib/lxd
+ * /var/lib/uvtool
+ * /var/snap/docker/common
+ * /var/snap/lxd/common
+ * /var/snap/multipass/common
 
 
-### share-root-samba.sh
+### share-root-in-samba.sh
 
-A very dangerous script that shares / as root, over a samba guest account, read-write.
+A very dangerous script that installs samba server and shares / as root, over a samba guest account, read-write.
+
+This is only meant for debugging a broken virtual system.
+
+YOU HAVE BEEN WARNED.
 
 
 Typical Use
@@ -62,7 +77,7 @@ Install via installation media.
 
 #### Install Host Software
 
-Note: I'm installing GUI components (-g), but they won't be usable unless your host environment has a desktop environment set up.
+Note: I'm installing GUI components (-g), but they won't be usable unless your host has a desktop environment set up.
 
     git clone https://github.com/kstenerud/ubuntu-dev-installer.git
     useradd --create-home --shell /bin/bash --user-group karl
@@ -94,7 +109,7 @@ Install via installation media.
 
 #### Install Guest Software
 
-This will create a fully virtualized Mate desktop environment with ubuntu dev tools, x2go, and Chrome remote desktop installed. You'll need to connect first via x2go in order to log in to Chrome and enable Chrome remote desktop.
+This will create a fully virtualized Mate desktop environment with Ubuntu dev tools, x2go, and Chrome Remote Desktop installed. You'll need to connect first via x2go in order to log in to Chrome and enable Chrome Remote Desktop.
 
     git clone https://github.com/kstenerud/ubuntu-dev-installer.git
     useradd --create-home --shell /bin/bash --user-group karl

@@ -1,23 +1,24 @@
 #!/bin/bash
 set -eu
 
-# /var/lib/libvirt
-# /var/snap/lxd/common/lxd
-# /var/snap/multipass/common/data
+# Map various VM and container technology paths to somewhere else
 
-# $virt_home/system/libvirt
-# $virt_home/system/lxd
-# $virt_home/system/multipass
-# $virt_home/iso
-# $virt_home/mounts
-
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run as root"
+    exit 1
+fi
 
 copy_directory_contents()
 {
     src_dir=$1
     dst_dir=$2
-    shopt -s dotglob
-    rsync -a ${src_dir}/* ${dst_dir}/
+    parent_dir="$(dirname "$dst_dir")"
+    #shopt -s dotglob
+    mkdir -p "$parent_dir"
+    rsync -a "${src_dir}" "${parent_dir}"
+    if [ "$(basename "$src_dir")" != "$(basename "$dst_dir")" ]; then
+        mv "$parent_dir/$(basename "$src_dir")" "$parent_dir/$(basename "$dst_dir")"
+    fi
 }
 
 generate_fstab_entry()
@@ -31,7 +32,7 @@ write_fstab_entry()
 {
     src_dir="$1"
     dst_dir="$2"
-    echo "$(generate_fstab_entry "$old_path" "$new_path")" | tee -a /etc/fstab
+    echo "$(generate_fstab_entry "$old_path" "$new_path")" | tee -a /etc/fstab >/dev/null
 }
 
 is_bind_mounted()
@@ -52,27 +53,24 @@ map_path()
         return 0
     fi
 
-    echo "Bind mounting [$old_path] to [$new_path]"
-
-    if [ -d "$old_path" ]; then
-        echo "Backup path [$old_path_bak] already exists! Aborting."
+    if [ ! -d "$old_path" ]; then
+        echo "Path [$old_path] doesn't exist. Skipping."
+        return 0
     fi
 
-    if [ ! -d "$new_path" ]; then
-        mkdir -p "${new_path}"
-        if [ -d "$old_path" ]; then
-            echo "Copying contents of [$old_path] to [$new_path]..."
-            copy_directory_contents "$old_path" "$new_path"
-        fi
+    if [ -d "$new_path" ]; then
+        echo "Path [$new_path] already exists. Skipping."
+        return 0
     fi
 
-    if [ -d "$old_path" ]; then
-        echo "Backing up existing [${old_path}] to [${old_path}.bak]"
-        mv "${old_path}" "${old_path}.bak"
-    else
-        echo "Old path [$old_path] doesn't exist yet. Creating it..."
+    if [ -d "$old_path_bak" ]; then
+        echo "Backup path [$old_path_bak] already exists. Skipping."
+        return 0
     fi
 
+    echo "Bind mounting [${old_path}] to [${new_path}], and creating backup [${old_path_bak}]."
+    copy_directory_contents "$old_path" "$new_path"
+    mv "${old_path}" "${old_path}.bak"
     mkdir -p "${old_path}"
     write_fstab_entry "$old_path" "$new_path"
 }
@@ -81,9 +79,14 @@ show_help()
 {
     echo "Bind mounts the following paths to a virtual \"home dir\":
 
+Useful if you have a separate boot drive with limited space.
+
  * /var/lib/libvirt
- * /var/snap/lxd/common/lxd
- * /var/snap/multipass/common/data
+ * /var/lib/lxd
+ * /var/lib/uvtool
+ * /var/snap/docker/common
+ * /var/snap/lxd/common
+ * /var/snap/multipass/common
 
 Usage: $(basename $0) <virtual home dir>"
 }
@@ -118,13 +121,15 @@ fi
 VIRT_HOME_DIR="$1"
 
 echo "Backing up /etc/fstab to /etc/fstab.bak"
-cp -a /etc/fstab /etc/fstab.bak
+ cp -a /etc/fstab /etc/fstab.bak
 
-map_path /var/snap/docker/common    "$VIRT_HOME_DIR/system/docker"
-map_path /var/lib/libvirt           "$VIRT_HOME_DIR/system/libvirt"
-map_path /var/lib/lxd               "$VIRT_HOME_DIR/system/lxd"
-map_path /var/snap/multipass/common "$VIRT_HOME_DIR/system/multipass"
-map_path /var/lib/uvtool            "$VIRT_HOME_DIR/system/uvtool"
+map_path /var/lib/libvirt           "$VIRT_HOME_DIR/lib/libvirt"
+map_path /var/lib/lxd               "$VIRT_HOME_DIR/lib/lxd"
+map_path /var/lib/uvtool            "$VIRT_HOME_DIR/lib/uvtool"
+map_path /var/snap/docker/common    "$VIRT_HOME_DIR/snap/docker"
+map_path /var/snap/lxd/common       "$VIRT_HOME_DIR/snap/lxd"
+map_path /var/snap/multipass/common "$VIRT_HOME_DIR/snap/multipass"
 
 echo "Paths mapped. Re-mounting..."
 mount -a
+echo "You should reboot now."

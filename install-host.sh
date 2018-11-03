@@ -3,6 +3,11 @@ set -eu
 
 # Install and configure a host machine for VMs and containers
 
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run as root"
+    exit 1
+fi
+
 get_homedir()
 {
     user=$1

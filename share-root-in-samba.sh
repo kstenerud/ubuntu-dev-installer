@@ -3,6 +3,11 @@ set -eu
 
 # Start a samba service on the current machine to serve the root directory read/write.
 
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run as root"
+    exit 1
+fi
+
 configure_avahi()
 {
     sed -i 's/\(rlimit-nproc\)/#\1/g' /etc/avahi/avahi-daemon.conf

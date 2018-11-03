@@ -3,6 +3,11 @@ set -eu
 
 # Configure a user to do ubuntu development.
 
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run as root"
+    exit 1
+fi
+
 file_contains()
 {
     file="$1"
@@ -134,8 +139,8 @@ add_user_to_required_groups()
 
 show_help()
 {
-    echo "Usage: $0 [options] <username> <full name> <email> <git username> <lp username>"
-    echo "or:    $0 -g <username>"
+    echo "Usage: $(basename $0) [options] <username> <full name> <email> <git username> <lp username>"
+    echo "or:    $(basename $0) -g <username>"
     echo
     echo "Options:"
     echo "  -G: Add user to needed groups and don't do anything else."
@@ -175,7 +180,6 @@ while getopts "gcG" o; do
     esac
 done
 shift $((OPTIND-1))
-
 
 if [ "$GROUPS_ONLY" == "true" ]; then
     if (( $# != 1 )); then

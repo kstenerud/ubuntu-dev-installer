@@ -1,6 +1,13 @@
 #!/bin/bash
 set -eu
 
+# Modify a container to make it capable of hosting VMs and other containers.
+
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run as root"
+    exit 1
+fi
+
 mount_host() {
 	container_name=$1
     device_name="$2"

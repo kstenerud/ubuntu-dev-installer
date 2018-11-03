@@ -3,6 +3,11 @@ set -eu
 
 # Install ubuntu development software inside a guest
 
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run as root"
+    exit 1
+fi
+
 sanitize_filename()
 {
     filename="$(basename "$1" | tr -cd 'A-Za-z0-9_.')"
