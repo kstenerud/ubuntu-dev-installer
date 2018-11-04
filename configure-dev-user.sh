@@ -18,8 +18,15 @@ file_contains()
 
 get_homedir()
 {
-    user=$1
-    eval echo "~$user"
+    username=$1
+    eval echo "~$username"
+}
+
+chown_homedir()
+{
+    username=$1
+
+    chown $username:$(id -g $username) "$(get_homedir $username)"
 }
 
 add_to_file()
@@ -218,7 +225,7 @@ configure_quilt ${USERNAME}
 configure_dput ${USERNAME}
 configure_git ${USERNAME} "${GIT_USERNAME}" "${FULL_NAME}" "${EMAIL}" "${LP_NAME}"
 add_user_to_required_groups ${USERNAME}
-chown -R ${USERNAME}:$(id -g ${USERNAME}) "$(get_homedir $USERNAME)"
+chown_homedir ${USERNAME}
 
 
 echo 'Dev user configured successfully. Remember to set:
