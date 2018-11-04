@@ -26,7 +26,7 @@ chown_homedir()
 {
     username=$1
 
-    chown $username:$(id -g $username) "$(get_homedir $username)"
+    chown -R $username:$(id -g $username) "$(get_homedir $username)"
 }
 
 add_to_file()

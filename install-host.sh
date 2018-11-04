@@ -80,7 +80,7 @@ make_user_paths()
     echo "Creating user $user paths: $paths"
     for path in $paths; do
         mkdir -p "$path"
-        chown ${user}:$(id -g ${user}) "$path"
+        chown -R ${user}:$(id -g ${user}) "$path"
     done
 }
 
