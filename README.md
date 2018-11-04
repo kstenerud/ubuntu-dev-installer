@@ -92,7 +92,7 @@ Note: I'm installing GUI components (-g), but they won't be usable unless your h
 
 ### Create a Guest
 
-You can create a metal, VM, or container guest. Generally, the guest software should be installed in a virtualized guest environment rather than on bare metal.
+You can create a metal, VM, or container guest. Generally, you'll want to install in a virtualized guest environment rather than on bare metal, so that you can easily rebuild after breaking things (just save your homedir).
 
 #### Multipass
 
