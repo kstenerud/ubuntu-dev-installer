@@ -75,6 +75,10 @@ If you use LXD for the host, guests won't be able to install snaps due to a bug:
     ./make_container_hostable.sh host
     lxc exec host bash
 
+Make the host container capable of hosting others:
+
+    ./make-container-hostable.sh -a host
+
 #### Metal
 
 Install via installation media.
@@ -107,6 +111,10 @@ You can create a metal, VM, or container guest. Generally, you'll want to instal
     ./make_container_hostable.sh guest
     lxc exec guest bash
 
+Make the guest capable of installing snaps:
+
+    ./make-container-hostable.sh -s guest
+
 #### Metal
 
 Install via installation media.
@@ -119,3 +127,4 @@ This will create a fully virtualized Mate desktop environment with Ubuntu dev to
     git clone https://github.com/kstenerud/ubuntu-dev-installer.git
     cd ubuntu-dev-installer
     ./install-guest.sh -d -t Europe/Berlin -l en:US -k us:pc105 -u karl -U
+    ./configure-dev-user.sh -g karl
