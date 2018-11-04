@@ -48,6 +48,13 @@ install_packages()
     bash -c "(export DEBIAN_FRONTEND=noninteractive; apt install -y $packages)"
 }
 
+remove_packages()
+{
+    packages="$@"
+    echo "Removing packages $packages"
+    apt remove -y $packages
+}
+
 install_packages_from_urls()
 {
     urls="$@"
