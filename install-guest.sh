@@ -8,6 +8,15 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+disable_services()
+{
+    service_names="$@"
+    for service in $service_names; do
+        echo "Disabling service $service"
+        systemctl disable $service || true
+    done
+}
+
 sanitize_filename()
 {
     filename="$(basename "$1" | tr -cd 'A-Za-z0-9_.')"
