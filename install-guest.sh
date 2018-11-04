@@ -281,25 +281,24 @@ does_user_exist()
     id -u $user >/dev/null 2>&1
 }
 
-check_user()
+check_user_exists()
 {
     user=$1
     force_create=$2
 
-    if ! does_user_exist $user && [ "$force_create" != "true" ]; then
-        echo "User $user doesn't exist. Please use -U switch to create." 1>&2
-        return 1
+    if ! does_user_exist $user; then
+        if [ "$force_create" == "true" ]; then
+            useradd --create-home --shell /bin/bash --user-group $user
+        else
+            echo "User $user doesn't exist. Please use -U switch to create." 1>&2
+            return 1
+        fi
     fi
 }
 
 setup_user()
 {
     user=$1
-    force_create=$2
-
-    if ! does_user_exist $user && [ "$force_create" == "true" ]; then
-        useradd --create-home --shell /bin/bash --user-group $user
-    fi
 
     add_user_to_groups $user \
         adm \
@@ -389,7 +388,7 @@ shift $((OPTIND-1))
 
 
 if [ ! -z "$SETUP_USER" ]; then
-    check_user "$SETUP_USER" $FORCE_CREATE_USER
+    check_user_exists "$SETUP_USER" $FORCE_CREATE_USER
 fi
 
 apt update
@@ -423,7 +422,7 @@ if [ "$INSTALL_DESKTOP" == "true" ]; then
 fi
 
 if [ ! -z "$SETUP_USER" ]; then
-    setup_user "$SETUP_USER" $FORCE_CREATE_USER
+    setup_user "$SETUP_USER"
 fi
 
 
