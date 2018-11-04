@@ -189,9 +189,14 @@ install_desktop()
     echo "Installing virtual desktop software..."
 
     apply_bluetooth_fix
-    install_packages software-properties-common ubuntu-mate-desktop
+    install_packages software-properties-common ubuntu-mate-desktop openssh-server
     remove_packages light-locker
     
+    install_packages_from_repository ppa:x2go/stable \
+        x2goserver \
+        x2goserver-xsession \
+        x2goclient
+
     install_packages_from_urls \
             https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
             https://dl.google.com/linux/direct/chrome-remote-desktop_current_amd64.deb
