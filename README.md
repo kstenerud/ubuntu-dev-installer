@@ -97,7 +97,7 @@ You can create a metal, VM, or container guest. Generally, you'll want to instal
 #### Multipass
 
     multipass launch --name guest
-    multipass exec fuest bash
+    multipass exec guest bash
     sudo su
 
 #### LXD
