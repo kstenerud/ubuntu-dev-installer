@@ -41,6 +41,16 @@ install_classic_snaps()
     done
 }
 
+add_repositories()
+{
+    repositories="$@"
+    echo "Adding repositories $repositories"
+    for repo in $repositories; do
+        add-apt-repository -y $repo
+    done
+    apt update
+}
+
 install_packages()
 {
     packages="$@"
@@ -53,6 +63,15 @@ remove_packages()
     packages="$@"
     echo "Removing packages $packages"
     apt remove -y $packages
+}
+
+install_packages_from_repository()
+{
+    repo="$1"
+    shift
+    packages="$@"
+    add_repositories $repo
+    install_packages $packages
 }
 
 install_packages_from_urls()
