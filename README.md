@@ -72,12 +72,8 @@ You can create a metal, VM, or container host. Note that container hosts have so
 If you use LXD for the host, guests won't be able to install snaps due to a bug: https://discuss.linuxcontainers.org/t/how-to-install-lxd-in-a-lxd-container-that-is-being-built-in-a-lxd-container/1651
 
     lxc launch ubuntu:bionic host
-    ./make_container_hostable.sh host
+    ./make_container_hostable.sh -a host
     lxc exec host bash
-
-Make the host container capable of hosting others:
-
-    ./make-container-hostable.sh -a host
 
 #### Metal
 
@@ -107,13 +103,9 @@ You can create a metal, VM, or container guest. Generally, you'll want to instal
 #### LXD
 
     lxc launch ubuntu:bionic guest
-    # Needed if you want the guest to be able to launch VMs and containers:
-    ./make_container_hostable.sh guest
+    # Needed to make snaps work:
+    ./make_container_hostable.sh -s guest
     lxc exec guest bash
-
-Make the guest capable of installing snaps:
-
-    ./make-container-hostable.sh -s guest
 
 #### Metal
 
