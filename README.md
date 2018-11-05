@@ -9,6 +9,9 @@ The environment is split into a **host** environment, which then hosts a **guest
 Scripts
 -------
 
+All scripts are idempotent.
+
+
 #### configure-dev-user.sh
 
 Configure a user for development, adding various configuration files for git, quilt, etc, and modifying their `.profile`.
