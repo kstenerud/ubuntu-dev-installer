@@ -3,37 +3,39 @@ Ubuntu Development Environment Installer
 
 Scripts to help setting up a development environment primarily for ubuntu server development, troubleshooting, and bug fixing.
 
+The environment is split into a **host** environment, which then hosts a **guest** environment, although you can forego the host side and just install the guest environment directly. Setting up a host environment makes it easier to destroy and rebuild your dev environment if you break things (basically a couple of script calls and you're back in business).
+
 
 Scripts
 -------
 
-### configure-dev-user.sh
+#### configure-dev-user.sh
 
 Configure a user for development, adding various configuration files for git, quilt, etc, and modifying their `.profile`.
 
 
-### download-virtual-images.sh
+#### download-virtual-images.sh
 
 Pre-download various VM and container images for currently active Ubuntu releases.
 
 
-### install-guest.sh
+#### install-guest.sh
 
 This script sets up the actual development environment inside a guest environment. You can run this on anything from bare metal to a VM to a container.
 
 
-### install-host.sh
+#### install-host.sh
 
 This script sets up a virtualization host so that it can host other containers and VMs.
 Currently, a containerized host cannot host containers that attempt to install snaps.
 
 
-### make-container-hostable.sh
+#### make-container-hostable.sh
 
 Modifies a container to allow it to run VMs and containers.
 
 
-### map-vm-paths.sh
+#### map-vm-paths.sh
 
 Relocates and bind-mounts all existing VM and container directories on a host to save space on a boot drive:
 
@@ -45,7 +47,7 @@ Relocates and bind-mounts all existing VM and container directories on a host to
  * /var/snap/multipass/common
 
 
-### share-root-in-samba.sh
+#### share-root-in-samba.sh
 
 A very dangerous script that installs samba server and shares / as root, over a samba guest account, read-write.
 
@@ -56,6 +58,9 @@ YOU HAVE BEEN WARNED.
 
 Typical Use
 -----------
+
+Typically, I set up my main machine as a host, and then host a virtual guest which I connect to as a thin client using Chrome RD (works on desktop and server). You can also forego the entire hosting side and just run the guest and user configuration scripts directly.
+
 
 ### Create a Host
 
