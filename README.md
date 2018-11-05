@@ -87,7 +87,7 @@ Install via installation media.
 
 #### Install Host Software
 
-Note: I'm installing GUI components (-g), but they won't be usable unless your host has a desktop environment set up.
+Note: I'm installing GUI components (-g), but they won't be usable unless your host has a desktop environment set up. If your host doesn't have a GUI set up, just use console install (-c).
 
     git clone https://github.com/kstenerud/ubuntu-dev-installer.git
     useradd --create-home --shell /bin/bash --user-group karl
@@ -97,7 +97,9 @@ Note: I'm installing GUI components (-g), but they won't be usable unless your h
 
 ### Create a Guest
 
-You can create a metal, VM, or container guest. Generally, you'll want to install in a virtualized guest environment rather than on bare metal, so that you can easily rebuild after breaking things (just save your homedir).
+You can create a metal, VM, or container guest. Generally, you'll want to install in a virtualized guest environment rather than on bare metal, so that you can more quickly and easily rebuild after breaking things (just save your homedir).
+
+You can install the guest as console-only, GUI (if your guest already has a desktop installed), or as a virtual desktop that you connect to via x2go or Chrome Remote Desktop.
 
 #### Multipass
 
