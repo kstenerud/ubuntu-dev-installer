@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Set up a VPN connection via NetworkManager.
+# You must download the credentials files first.
+
 set -eu
 
 get_homedir()
@@ -49,6 +52,10 @@ if [ -f /etc/netplan/10-lxc.yaml ]; then
 fi
 
 nmcli con import type openvpn file "${CONF_FILE}"
+
+echo "You can now start and stop the VPN by calling:"
+echo "  sudo nmcli con up ${REGION}-${CANONICAL_USER}"
+echo "  sudo nmcli con down ${REGION}-${CANONICAL_USER}"
 
 # TODO: Sometimes nmcli con up <name> fails.
 # Need reboot maybe?
