@@ -14,7 +14,7 @@ Options:
     -t <timezone>: Set timezone (e.g. America/Vancouver)
     -l <language:region>: Set language and region (e.g. en:US)
     -k <layout:model>: Set keyboard layout and model (e.g. us:pc105)
-    -u <user>: Add the specified user to groups: adm kvm libvirt lxd
+    -u <user>: Add the specified user to groups: adm kvm libvirt lxd sbuild
     -U: Create user if it doesn't exist."
 }
 
