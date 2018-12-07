@@ -131,7 +131,7 @@ enable_network_manager_management
 enable_network_manager_renderer_in_lxc
 import_vpn_config $CANONICAL_USER $REGION $LINUX_USER
 
-echo "You can now start and stop the VPN by calling:"
+echo "You can now start and stop VPN [${REGION}-${CANONICAL_USER}] using the network applet, or in a shell:"
 echo "  sudo nmcli con up ${REGION}-${CANONICAL_USER}"
 echo "  sudo nmcli con down ${REGION}-${CANONICAL_USER}"
 echo
