@@ -5,6 +5,17 @@
 
 set -eu
 
+show_help()
+{
+    echo "Usage: $(basename $0) [options] <linux username> <canonical username> <region>"
+    echo "Where region is one of: tw, us, uk"
+    echo
+    echo "Options:"
+    echo "  -f <path-to-zipfile> Extract credentials from this zip file"
+    echo
+    echo "Get your VPN credentials from https://enigma.admin.canonical.com"
+}
+
 get_homedir()
 {
     user=$1
@@ -73,17 +84,6 @@ import_vpn_config()
 
     conf_file="$(get_vpn_dir $linux_user)/${region}-${canonical_user}.conf"
     nmcli con import type openvpn file "${conf_file}"
-}
-
-show_help()
-{
-    echo "Usage: $(basename $0) [options] <linux username> <canonical username> <region>"
-    echo "Where region is one of: tw, us, uk"
-    echo
-    echo "Options:"
-    echo "  -f <path-to-zipfile> Extract credentials from this zip file"
-    echo
-    echo "Get your VPN credentials from https://enigma.admin.canonical.com"
 }
 
 usage()
