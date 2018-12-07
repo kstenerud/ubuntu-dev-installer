@@ -9,7 +9,7 @@ Usage: $(basename $0) [options]
 Options:
     -c: Install console software
     -g: Install GUI (as well as console) software
-    -d: Install a virtual desktop environment (ubuntu mate)
+    -d: Install a virtual desktop environment (ubuntu mate). Connect first using x2go, then set up Chrome Remote Desktop.
     -r <resolution>: Chrome Remote Desktop screen resolution (default 1920x1080)
     -t <timezone>: Set timezone (e.g. America/Vancouver)
     -l <language:region>: Set language and region (e.g. en:US)
