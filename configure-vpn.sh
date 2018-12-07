@@ -94,11 +94,6 @@ usage()
 
 #####################################################################
 
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run using sudo"
-    exit 1
-fi
-
 CONFIG_ARCHIVE_FILE=
 
 while getopts "?f:" o; do
@@ -119,6 +114,11 @@ shift $((OPTIND-1))
 
 if [ $# -ne 3 ]; then
     usage
+fi
+
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run using sudo"
+    exit 1
 fi
 
 LINUX_USER=$1

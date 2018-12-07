@@ -117,11 +117,6 @@ usage()
 
 #####################################################################
 
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run using sudo"
-    exit 1
-fi
-
 REALLY_INSTALL=false
 
 while getopts "?y" o; do
@@ -142,6 +137,11 @@ shift $((OPTIND-1))
 
 if [ "$REALLY_INSTALL" != "true" ]; then
     usage
+fi
+
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run using sudo"
+    exit 1
 fi
 
 

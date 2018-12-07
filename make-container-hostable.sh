@@ -84,14 +84,14 @@ usage()
 
 #####################################################################
 
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run using sudo"
-    exit 1
-fi
-
 if [ $# -lt 2 ]; then
     echo "Please specify at least one option."
     usage
+fi
+
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run using sudo"
+    exit 1
 fi
 
 ALLOW_CONTAINER_HOSTING=false

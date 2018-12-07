@@ -338,13 +338,13 @@ usage()
 
 #####################################################################
 
+if [ $# -eq 0 ]; then
+    usage
+fi
+
 if [ "$EUID" -ne 0 ]; then
     echo "$(basename $0) must run using sudo"
     exit 1
-fi
-
-if [ $# -eq 0 ]; then
-    usage
 fi
 
 INSTALL_CONSOLE=false

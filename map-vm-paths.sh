@@ -111,11 +111,6 @@ usage()
 
 #####################################################################
 
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run using sudo"
-    exit 1
-fi
-
 MAP_EXISTING=false
 
 while getopts "?e" o; do
@@ -136,6 +131,11 @@ shift $((OPTIND-1))
 
 if [ $# -ne 1 ]; then
     usage
+fi
+
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run using sudo"
+    exit 1
 fi
 
 VIRT_HOME_DIR="$1"

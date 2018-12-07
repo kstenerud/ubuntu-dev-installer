@@ -161,11 +161,6 @@ usage()
 
 #####################################################################
 
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run using sudo"
-    exit 1
-fi
-
 GROUPS_ONLY=false
 INSTALL_MODE=
 
@@ -209,6 +204,11 @@ fi
 
 if (( $# != 5 )); then
     usage
+fi
+
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run using sudo"
+    exit 1
 fi
 
 USERNAME=$1
