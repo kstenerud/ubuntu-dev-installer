@@ -122,6 +122,8 @@ install_console()
     echo "Installing console software..."
 
     install_packages \
+        apache2-dev \
+        apt-cacher-ng \
         autoconf \
         autopkgtest \
         bison \
@@ -131,7 +133,9 @@ install_console()
         cpu-checker \
         curl \
         debconf-utils \
+        debmake \
         devscripts \
+        dh-make \
         docker.io \
         dpkg-dev \
         flex \
@@ -145,6 +149,8 @@ install_console()
         net-tools \
         nfs-common \
         ovmf \
+        pastebinit \
+        piuparts \
         pkg-config \
         python-pip \
         python3-argcomplete \
@@ -161,6 +167,7 @@ install_console()
         qemu-kvm \
         quilt \
         rsnapshot \
+        sbuild \
         snapcraft \
         snapd \
         squashfuse \
@@ -179,6 +186,8 @@ install_console()
     install_classic_snaps \
         git-ubuntu \
         ustriage
+
+    echo 'Acquire::http::Proxy "http://127.0.0.1:3142";' | sudo tee /etc/apt/apt.conf.d/01acng
 }
 
 install_gui()
@@ -304,7 +313,8 @@ setup_user()
         adm \
         kvm \
         lxd \
-        libvirt
+        libvirt \
+        sbuild
 }
 
 show_help()
