@@ -1,12 +1,21 @@
 #!/bin/bash
 set -eu
 
-# Install and configure a host machine for VMs and containers
+show_help()
+{
+    echo "Install software for hosting VMs and containers as a top level host.
 
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run as root"
-    exit 1
-fi
+Usage: $(basename $0) [options]
+Options:
+    -c: Install console software
+    -g: Install GUI (as well as console) software
+    -u <user>: Set the host user to map to container users that need host mounted access
+    -U: Create user if it doesn't exist.
+    -b <name>: Create a virtual bridge (doesn't work in lxd container)"
+}
+
+#####################################################################
+
 
 get_homedir()
 {
@@ -230,19 +239,6 @@ EOF
 
 }
 
-show_help()
-{
-    echo "Install software for hosting VMs and containers as a top level host.
-
-Usage: $(basename $0) [options]
-Options:
-    -c: Install console software
-    -g: Install GUI (as well as console) software
-    -u <user>: Set the host user to map to container users that need host mounted access
-    -U: Create user if it doesn't exist.
-    -b <name>: Create a virtual bridge (doesn't work in lxd container)"
-}
-
 usage()
 {
     show_help 1>&2
@@ -250,6 +246,11 @@ usage()
 }
 
 #####################################################################
+
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run using sudo"
+    exit 1
+fi
 
 if [ $# -eq 0 ]; then
     usage

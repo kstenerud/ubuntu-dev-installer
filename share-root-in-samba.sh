@@ -1,12 +1,17 @@
 #!/bin/bash
 set -eu
 
-# Start a samba service on the current machine to serve the root directory read/write.
+show_help()
+{
+    echo "Starts a samba service to share the root directory AS root.
+WARNING: This gives root access over samba! Only use for debugging a VM that will be destroyed afterwards!
+If you really want to do this, call the script again with -y
 
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run as root"
-    exit 1
-fi
+Usage: $(basename $0) -y"
+}
+
+#####################################################################
+
 
 configure_avahi()
 {
@@ -104,15 +109,6 @@ configure_samba()
     echo "    guest ok = yes" >> $smbconf
 }
 
-show_help()
-{
-    echo "Starts a samba service to share the root directory AS root.
-WARNING: This gives root access over samba! Only use for debugging a VM that will be destroyed afterwards!
-If you really want to do this, call the script again with -y
-
-Usage: $(basename $0) -y"
-}
-
 usage()
 {
     show_help 1>&2
@@ -120,6 +116,11 @@ usage()
 }
 
 #####################################################################
+
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run using sudo"
+    exit 1
+fi
 
 REALLY_INSTALL=false
 

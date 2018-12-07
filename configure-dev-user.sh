@@ -1,12 +1,21 @@
 #!/bin/bash
 set -eu
 
-# Configure a user to do ubuntu development.
+show_help()
+{
+    echo "Congigures tooling and defaults for ubuntu development."
+    echo
+    echo "Usage: $(basename $0) [options] <username> <full name> <email> <git username> <lp username>"
+    echo "or:    $(basename $0) -g <username>"
+    echo
+    echo "Options:"
+    echo "  -G: Add user to needed groups and don't do anything else."
+    echo "  -c: This is a console only user."
+    echo "  -g: This is a GUI user."
+}
 
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run as root"
-    exit 1
-fi
+#####################################################################
+
 
 file_contains()
 {
@@ -144,17 +153,6 @@ add_user_to_required_groups()
     add_user_to_groups $user adm sudo lxd kvm libvirt docker
 }
 
-show_help()
-{
-    echo "Usage: $(basename $0) [options] <username> <full name> <email> <git username> <lp username>"
-    echo "or:    $(basename $0) -g <username>"
-    echo
-    echo "Options:"
-    echo "  -G: Add user to needed groups and don't do anything else."
-    echo "  -c: This is a console only user."
-    echo "  -g: This is a GUI user."
-}
-
 usage()
 {
     show_help 1>&2
@@ -162,6 +160,11 @@ usage()
 }
 
 #####################################################################
+
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run using sudo"
+    exit 1
+fi
 
 GROUPS_ONLY=false
 INSTALL_MODE=

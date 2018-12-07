@@ -1,20 +1,20 @@
-#!/bin/sh
-
-# Set up a VPN connection via NetworkManager.
-# You must download the credentials files first.
-
+#!/bin/bash
 set -eu
 
 show_help()
 {
+    echo "Sets up a VPN connection via NetworkManager."
+    echo "Get your VPN credentials from https://enigma.admin.canonical.com"
+    echo
     echo "Usage: $(basename $0) [options] <linux username> <canonical username> <region>"
     echo "Where region is one of: tw, us, uk"
     echo
     echo "Options:"
     echo "  -f <path-to-zipfile> Extract credentials from this zip file"
-    echo
-    echo "Get your VPN credentials from https://enigma.admin.canonical.com"
 }
+
+#####################################################################
+
 
 get_homedir()
 {
@@ -91,6 +91,13 @@ usage()
     show_help
     exit 1
 }
+
+#####################################################################
+
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run using sudo"
+    exit 1
+fi
 
 CONFIG_ARCHIVE_FILE=
 

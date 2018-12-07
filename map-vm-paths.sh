@@ -1,12 +1,29 @@
 #!/bin/bash
 set -eu
 
-# Map various VM and container technology paths to somewhere else
+show_help()
+{
+    echo "Bind mounts the following paths to a virtual \"home dir\":
 
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run as root"
-    exit 1
-fi
+ * /var/lib/libvirt
+ * /var/lib/lxd
+ * /var/lib/uvtool
+ * /var/snap/docker/common
+ * /var/snap/lxd/common
+ * /var/snap/multipass/common
+
+Useful if you have a separate boot drive with limited space.
+
+Note: Old paths are backed up as (path).bak
+
+Usage: $(basename $0) [options] <virtual home dir>
+
+Options:
+    -e: If the new path already exists, map to it anyway (but don't copy)."
+}
+
+#####################################################################
+
 
 copy_directory_contents()
 {
@@ -86,27 +103,6 @@ map_path()
     write_fstab_entry "$old_path" "$new_path"
 }
 
-show_help()
-{
-    echo "Bind mounts the following paths to a virtual \"home dir\":
-
- * /var/lib/libvirt
- * /var/lib/lxd
- * /var/lib/uvtool
- * /var/snap/docker/common
- * /var/snap/lxd/common
- * /var/snap/multipass/common
-
-Useful if you have a separate boot drive with limited space.
-
-Note: Old paths are backed up as (path).bak
-
-Usage: $(basename $0) [options] <virtual home dir>
-
-Options:
-    -e: If the new path already exists, map to it anyway (but don't copy)."
-}
-
 usage()
 {
     show_help 1>&2
@@ -114,6 +110,11 @@ usage()
 }
 
 #####################################################################
+
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run using sudo"
+    exit 1
+fi
 
 MAP_EXISTING=false
 

@@ -1,12 +1,25 @@
 #!/bin/bash
 set -eu
 
-# Install ubuntu development software inside a guest
+show_help()
+{
+    echo "Install software for an ubuntu server development environment inside a VM or container.
 
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run as root"
-    exit 1
-fi
+Usage: $(basename $0) [options]
+Options:
+    -c: Install console software
+    -g: Install GUI (as well as console) software
+    -d: Install a virtual desktop environment
+    -r <resolution>: Chrome Remote Desktop screen resolution (default 1920x1080)
+    -t <timezone>: Set timezone (e.g. America/Vancouver)
+    -l <language:region>: Set language and region (e.g. en:US)
+    -k <layout:model>: Set keyboard layout and model (e.g. us:pc105)
+    -u <user>: Add the specified user to groups: adm kvm libvirt lxd
+    -U: Create user if it doesn't exist."
+}
+
+#####################################################################
+
 
 disable_services()
 {
@@ -317,23 +330,6 @@ setup_user()
         sbuild
 }
 
-show_help()
-{
-    echo "Install software for an ubuntu server development environment inside a VM or container.
-
-Usage: $(basename $0) [options]
-Options:
-    -c: Install console software
-    -g: Install GUI (as well as console) software
-    -d: Install a virtual desktop environment
-    -r <resolution>: Chrome Remote Desktop screen resolution (default 1920x1080)
-    -t <timezone>: Set timezone (e.g. America/Vancouver)
-    -l <language:region>: Set language and region (e.g. en:US)
-    -k <layout:model>: Set keyboard layout and model (e.g. us:pc105)
-    -u <user>: Add the specified user to groups: adm kvm libvirt lxd
-    -U: Create user if it doesn't exist."
-}
-
 usage()
 {
     show_help 1>&2
@@ -341,6 +337,11 @@ usage()
 }
 
 #####################################################################
+
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run using sudo"
+    exit 1
+fi
 
 if [ $# -eq 0 ]; then
     usage

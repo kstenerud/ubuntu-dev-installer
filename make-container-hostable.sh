@@ -1,12 +1,21 @@
 #!/bin/bash
 set -eu
 
-# Modify a container to make it capable of hosting VMs and other containers.
+show_help()
+{
+    echo "Modifies a container to make it able to host VMs, containers, and snaps
 
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run as root"
-    exit 1
-fi
+Usage: $(basename $0) [options] <container name>
+Options:
+    -c: Allow container hosting
+    -v: Allow VM hosting
+    -s: Allow snaps
+    -p: Mark privileged
+    -a: All (enable everything)"
+}
+
+#####################################################################
+
 
 mount_host() {
 	container_name=$1
@@ -67,19 +76,6 @@ allow_snaps()
     fi
 }
 
-show_help()
-{
-    echo "Modifies a container to make it able to host VMs, containers, and snaps
-
-Usage: $(basename $0) [options] <container name>
-Options:
-    -c: Allow container hosting
-    -v: Allow VM hosting
-    -s: Allow snaps
-    -p: Mark privileged
-    -a: All (enable everything)"
-}
-
 usage()
 {
     show_help 1>&2
@@ -87,6 +83,11 @@ usage()
 }
 
 #####################################################################
+
+if [ "$EUID" -ne 0 ]; then
+    echo "$(basename $0) must run using sudo"
+    exit 1
+fi
 
 if [ $# -lt 2 ]; then
     echo "Please specify at least one option."
