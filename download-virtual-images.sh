@@ -1,6 +1,8 @@
 #!/bin/bash
 set -eu
 
+TODO: autopkgtest-build-lxd ubuntu-daily:disco
+
 # Pre-download various VM and container images for currently active Ubuntu releases.
 
 
