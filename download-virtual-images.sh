@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-TODO: autopkgtest-build-lxd ubuntu-daily:disco
+# TODO: autopkgtest-build-lxd
 
 # Pre-download various VM and container images for currently active Ubuntu releases.
 
@@ -9,6 +9,9 @@ TODO: autopkgtest-build-lxd ubuntu-daily:disco
 # -------------
 # Configuration
 # -------------
+
+DAILY_IMAGE_SETS="disco cosmic"
+RELEASE_IMAGE_SETS="cosmic bionic xenial trusty"
 
 ARCHITECTURE=amd64
 AUTOPKGTEST_IMAGES_DIR=/var/lib/adt-images
@@ -81,8 +84,8 @@ download_image_sets()
 
 echo "Installing VM and container images."
 
-download_image_sets daily     cosmic
-download_image_sets release   cosmic bionic xenial trusty
+download_image_sets daily $DAILY_IMAGE_SETS
+download_image_sets release $RELEASE_IMAGE_SETS
 
 echo
 echo "VM and container images have been installed."

@@ -1,138 +1,45 @@
 #!/bin/bash
 set -eu
 
+DEFAULT_TIMEZONE=Europe/Berlin
+DEFAULT_LANGUAGE_REGION=en:US
+DEFAULT_KEYBOARD_LAYOUT_MODEL=us:pc105
+DEFAULT_VIRTUAL_RESOLUTION=1920x1080
+USER_GROUPS="adm sudo lxd kvm libvirt sbuild"
+
 show_help()
 {
-    echo "Install software for an ubuntu server development environment inside a VM or container.
+    echo \
+"Install software for an ubuntu server development environment inside a VM or container.
 
 Usage: $(basename $0) [options]
 Options:
-    -c: Install console software
-    -g: Install GUI (as well as console) software
-    -d: Install a virtual desktop environment (ubuntu mate). Connect first using x2go, then set up Chrome Remote Desktop.
-    -r <resolution>: Chrome Remote Desktop screen resolution (default 1920x1080)
-    -t <timezone>: Set timezone (e.g. America/Vancouver)
-    -l <language:region>: Set language and region (e.g. en:US)
-    -k <layout:model>: Set keyboard layout and model (e.g. us:pc105)
-    -u <user>: Add the specified user to groups: adm kvm libvirt lxd sbuild
-    -U: Create user if it doesn't exist."
+    -g: Install GUI software as well.
+    -d: Install a virtual desktop environment (Ubuntu Mate). Connect first using x2go, then set up Chrome Remote Desktop.
+    -r <resolution>: Chrome Remote Desktop screen resolution (default $DEFAULT_VIRTUAL_RESOLUTION)
+    -t <timezone>: Set timezone (default $DEFAULT_TIMEZONE)
+    -l <language:region>: Set language and region (default $DEFAULT_LANGUAGE_REGION)
+    -k <layout:model>: Set keyboard layout and model (default $DEFAULT_KEYBOARD_LAYOUT_MODEL)
+    -u <user>: Add the specified user to groups: $USER_GROUPS
+    -U: Create user if it doesn't exist.
+    -p: Allow ssh users to log in using passwords."
 }
 
 #####################################################################
+SCRIPT_HOME=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+source $SCRIPT_HOME/common.sh "$SCRIPT_HOME"
 
 
-disable_services()
-{
-    service_names="$@"
-    for service in $service_names; do
-        echo "Disabling service $service"
-        systemctl disable $service || true
-    done
-}
-
-sanitize_filename()
-{
-    filename="$(basename "$1" | tr -cd 'A-Za-z0-9_.')"
-    echo "$filename"
-}
-
-install_snaps()
-{
-    snaps="$@"
-    echo "Installing snaps: $snaps"
-    for snap in $snaps; do
-        snap install $snap
-    done
-}
-
-install_classic_snaps()
-{
-    snaps="$@"
-    echo "Installing classic snaps: $snaps"
-    for snap in $snaps; do
-        snap install $snap --classic
-    done
-}
-
-add_repositories()
-{
-    repositories="$@"
-    echo "Adding repositories $repositories"
-    for repo in $repositories; do
-        add-apt-repository -y $repo
-    done
-    apt update
-}
-
-install_packages()
-{
-    packages="$@"
-    echo "Installing packages: $packages"
-    bash -c "(export DEBIAN_FRONTEND=noninteractive; apt install -y $packages)"
-}
-
-remove_packages()
-{
-    packages="$@"
-    echo "Removing packages $packages"
-    apt remove -y $packages
-}
-
-install_packages_from_repository()
-{
-    repo="$1"
-    shift
-    packages="$@"
-    add_repositories $repo
-    install_packages $packages
-}
-
-install_packages_from_urls()
-{
-    urls="$@"
-    echo "Installing URL packages: $urls"
-    for url in $urls; do
-        tmpfile="/tmp/tmp_deb_pkg_$(sanitize_filename $url).deb"
-        wget -qO $tmpfile "$url"
-        install_packages "$tmpfile"
-        rm "$tmpfile"
-    done
-}
-
-add_user_to_groups()
-{
-    username=$1
-    shift
-    groups=$@
-    echo "Adding $username to groups: $groups"
-    for group in $groups; do
-        if grep $group /etc/group >/dev/null; then
-            usermod -a -G $group $username
-        else
-            echo "WARNING: Not adding group $group because it doesn't exist."
-        fi
-    done
-}
-
-apply_bluetooth_fix()
-{
-    # Force bluetooth to install and then disable it so that it doesn't break the rest of the install.
-    install_packages bluez || true
-    disable_services bluetooth
-    install_packages
-}
-
-crd_set_resolution()
-{
-    resolution=$1
-    echo "Setting Chrome Remote Desktop resolution to $resolution"
-    sed_command="s/DEFAULT_SIZE_NO_RANDR = \"[0-9]*x[0-9]*\"/DEFAULT_SIZE_NO_RANDR = \"$resolution\"/g"
-    sed -i "$sed_command" /opt/google/chrome-remote-desktop/chrome-remote-desktop
-}
-
-install_console()
+install_console_software()
 {
     echo "Installing console software..."
+
+    install_snaps \
+        docker \
+        git-ubuntu:classic:edge \
+        lxd \
+        multipass:classic:beta \
+        ustriage:classic
 
     install_packages \
         apache2-dev \
@@ -144,66 +51,47 @@ install_console()
         build-essential \
         cmake \
         cpu-checker \
-        curl \
         debconf-utils \
         debmake \
         devscripts \
         dh-make \
-        docker.io \
         dpkg-dev \
         flex \
-        fuse \
-        git \
         git-buildpackage \
         libvirt-bin \
-        lxd \
         mtools \
-        nmap \
         net-tools \
         nfs-common \
+        nmap \
         ovmf \
         pastebinit \
         piuparts \
         pkg-config \
-        python-pip \
         python3-argcomplete \
-        python3-lazr.restfulclient \
-        python3-debian \
-        python3-distro-info \
         python3-launchpadlib \
-        python3-pygit2 \
-        python3-ubuntutools \
-        python3-pkg-resources \
-        python3-pytest \
+        python3-lazr.restfulclient \
         python3-petname \
+        python3-pip \
+        python3-pkg-resources \
+        python3-pygit2 \
+        python3-pytest \
+        python3-ubuntutools \
         qemu \
         qemu-kvm \
         quilt \
         rsnapshot \
         sbuild \
         snapcraft \
-        snapd \
         squashfuse \
+        tshark \
         ubuntu-dev-tools \
         uvtool \
         virtinst
 
-    # Disabled until lxd snaps are fixed.
-    # https://discuss.linuxcontainers.org/t/how-to-install-lxd-in-a-lxd-container-that-is-being-built-in-a-lxd-container/1651
-    # install_snaps \
-    #     docker \
-    #     lxd
-
-    snap install multipass --beta --classic
-
-    install_classic_snaps \
-        git-ubuntu \
-        ustriage
-
     echo 'Acquire::http::Proxy "http://127.0.0.1:3142";' | sudo tee /etc/apt/apt.conf.d/01acng
 }
 
-install_gui()
+install_gui_software()
 {
     echo "Installing GUI software..."
 
@@ -217,19 +105,29 @@ install_gui()
         wireshark
 
     install_snaps \
+        sublime-text:classic \
         telegram-desktop
-
-    install_classic_snaps \
-        sublime-text
 }
 
-install_desktop()
+crd_set_resolution()
+{
+    resolution=$1
+    echo "Setting Chrome Remote Desktop resolution to $resolution"
+    sed_command="s/DEFAULT_SIZE_NO_RANDR = \"[0-9]*x[0-9]*\"/DEFAULT_SIZE_NO_RANDR = \"$resolution\"/g"
+    sed -i "$sed_command" /opt/google/chrome-remote-desktop/chrome-remote-desktop
+}
+
+install_desktop_environment()
 {
     resolution=$1
 
     echo "Installing virtual desktop software..."
 
-    apply_bluetooth_fix
+    # Force bluetooth to install and then disable it so that it doesn't break the rest of the install.
+    install_packages bluez || true
+    disable_services bluetooth
+    install_packages
+
     install_packages software-properties-common ubuntu-mate-desktop openssh-server
     remove_packages light-locker
     
@@ -261,73 +159,19 @@ install_desktop()
     echo " * systemctl restart sshd"
 }
 
-set_timezone()
-{
-    timezone=$1
-
-    echo "Setting timezone: $timezone"
-
-    echo "$timezone" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
-}
-
-set_language_region()
-{
-    language=$1
-    region=$2
-
-    lang_base=${language}_${region}
-    lang_full=${lang_base}.UTF-8
-
-    echo "Setting locale: $lang_full"
-
-    locale-gen ${lang_base} ${lang_full}
-    # update-locale LANG=${lang_full}
-    # Only LANG seems to be necessary
-    update-locale LANG=${lang_full} LANGUAGE=${lang_base}:${language} LC_ALL=${lang_full}
-}
-
-set_keyboard_layout_model()
-{
-    kb_layout=$1
-    kb_model=$2
-
-    echo "Setting keyboard layout: $1, model: $2"
-
-    echo "keyboard-configuration keyboard-configuration/layoutcode string ${kb_layout}" | debconf-set-selections
-    echo "keyboard-configuration keyboard-configuration/modelcode string ${kb_model}" | debconf-set-selections
-}
-
-does_user_exist()
-{
-    user=$1
-    id -u $user >/dev/null 2>&1
-}
-
 check_user_exists()
 {
     user=$1
     force_create=$2
 
     if ! does_user_exist $user; then
-        if [ "$force_create" == "true" ]; then
+        if (( $force_create )); then
             useradd --create-home --shell /bin/bash --user-group $user
         else
             echo "User $user doesn't exist. Please use -U switch to create." 1>&2
             return 1
         fi
     fi
-}
-
-setup_user()
-{
-    user=$1
-
-    add_user_to_groups $user \
-        adm \
-        kvm \
-        lxd \
-        libvirt \
-        sbuild
 }
 
 usage()
@@ -338,39 +182,29 @@ usage()
 
 #####################################################################
 
-if [ $# -eq 0 ]; then
-    usage
-fi
+assert_is_root
 
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run using sudo"
-    exit 1
-fi
+WANTS_GUI_SOFTWARE=0
+WANTS_DESKTOP_ENVIRONMENT=0
+WANTS_SSH_PASSWORD_AUTH=0
+SET_TIMEZONE=$DEFAULT_TIMEZONE
+SET_LANGUAGE_REGION=$DEFAULT_LANGUAGE_REGION
+SET_KEYBOARD_LAYOUT_MODEL=$DEFAULT_KEYBOARD_LAYOUT_MODEL
+SETUP_FOR_USER=
+FORCE_CREATE_USER=0
+VIRTUAL_RESOLUTION=$DEFAULT_VIRTUAL_RESOLUTION
 
-INSTALL_CONSOLE=false
-INSTALL_GUI=false
-INSTALL_DESKTOP=false
-SET_TIMEZONE=
-SET_LANGUAGE_REGION=
-SET_KEYBOARD_LAYOUT_MODEL=
-SETUP_USER=
-FORCE_CREATE_USER=false
-VIRTUAL_RESOLUTION=1920x1080
-
-while getopts "?cgdr:t:l:k:u:U" o; do
+while getopts "?gdpr:t:l:k:u:U" o; do
     case "$o" in
         \?)
             show_help
             exit 0
             ;;
-        c)
-            INSTALL_CONSOLE=true
-            ;;
         g)
-            INSTALL_GUI=true
+            WANTS_GUI_SOFTWARE=1
             ;;
         d)
-            INSTALL_DESKTOP=true
+            WANTS_DESKTOP_ENVIRONMENT=1
             ;;
         r)
             VIRTUAL_RESOLUTION=$OPTARG
@@ -385,10 +219,13 @@ while getopts "?cgdr:t:l:k:u:U" o; do
             SET_KEYBOARD_LAYOUT_MODEL=$OPTARG
             ;;
         u)
-            SETUP_USER=$OPTARG
+            SETUP_FOR_USER=$OPTARG
             ;;
         U)
-            FORCE_CREATE_USER=true
+            FORCE_CREATE_USER=1
+            ;;
+        p)
+            WANTS_SSH_PASSWORD_AUTH=1
             ;;
         *)
             usage
@@ -398,11 +235,11 @@ done
 shift $((OPTIND-1))
 
 
-if [ ! -z "$SETUP_USER" ]; then
-    check_user_exists "$SETUP_USER" $FORCE_CREATE_USER
-fi
+apt update && apt dist-upgrade -y
 
-apt update
+if [ ! -z "$SETUP_FOR_USER" ]; then
+    check_user_exists "$SETUP_FOR_USER" $FORCE_CREATE_USER
+fi
 
 if [ ! -z "$SET_TIMEZONE" ] || [ ! -z "$SET_LANGUAGE_REGION" ] || [ ! -z "$SET_KEYBOARD_LAYOUT_MODEL" ]; then
     install_packages locales tzdata debconf software-properties-common
@@ -420,21 +257,24 @@ if [ ! -z "$SET_TIMEZONE" ] || [ ! -z "$SET_LANGUAGE_REGION" ] || [ ! -z "$SET_K
     fi
 fi
 
-if [ "$INSTALL_CONSOLE" == "true" ] ||  [ "$INSTALL_GUI" == "true" ] || [ "$INSTALL_DESKTOP" == "true" ]; then
-    install_console
+install_console_software
+
+if (( $WANTS_GUI_SOFTWARE )) || (( $WANTS_DESKTOP_ENVIRONMENT )); then
+    install_gui_software
 fi
 
-if [ "$INSTALL_GUI" == "true" ] || [ "$INSTALL_DESKTOP" == "true" ]; then
-    install_gui
+if (( $WANTS_DESKTOP_ENVIRONMENT )); then
+    install_desktop_environment $VIRTUAL_RESOLUTION
 fi
 
-if [ "$INSTALL_DESKTOP" == "true" ]; then
-    install_desktop $VIRTUAL_RESOLUTION
+if [ ! -z "$SETUP_FOR_USER" ]; then
+    add_user_to_groups $SETUP_FOR_USER $USER_GROUPS
 fi
 
-if [ ! -z "$SETUP_USER" ]; then
-    setup_user "$SETUP_USER"
+if (( $WANTS_SSH_PASSWORD_AUTH )); then
+    sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+    service ssh restart
 fi
 
 
-echo "Guest install completed successfully."
+echo "Guest install completed successfully. Your IP address is $(get_default_ip_address)."

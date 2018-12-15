@@ -3,7 +3,8 @@ set -eu
 
 show_help()
 {
-    echo "Starts a samba service to share the root directory AS root.
+    echo \
+"Starts a samba service to share the root directory AS root.
 WARNING: This gives root access over samba! Only use for debugging a VM that will be destroyed afterwards!
 If you really want to do this, call the script again with -y
 
@@ -11,14 +12,15 @@ Usage: $(basename $0) -y"
 }
 
 #####################################################################
-
+SCRIPT_HOME=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+source $SCRIPT_HOME/common.sh "$0"
 
 configure_avahi()
 {
     sed -i 's/\(rlimit-nproc\)/#\1/g' /etc/avahi/avahi-daemon.conf
     sed -i 's/#enable-dbus=yes/enable-dbus=no/g' /etc/avahi/avahi-daemon.conf
     sed -i 's/need dbus/use dbus/g' /etc/init.d/avahi-daemon
-    rm /etc/avahi/services/ssh.service /etc/avahi/services/sftp-ssh.service
+    rm -f /etc/avahi/services/ssh.service /etc/avahi/services/sftp-ssh.service
     printf "%s" '<?xml version="1.0" standalone="no"?><!--*-nxml-*-->
 <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
 <service-group>
@@ -100,7 +102,7 @@ configure_samba()
     max log size = 100
 " | tee $smbconf >/dev/null
 
-    echo "Mounting path $path as $name (writable=$writable)"
+    echo "Mounting path $share_path as $share_name (writable=$writable)"
     echo "" >> $smbconf
     echo "[$share_name]" >> $smbconf
     echo "    path = $share_path" >> $smbconf
@@ -116,6 +118,8 @@ usage()
 }
 
 #####################################################################
+
+assert_is_root
 
 REALLY_INSTALL=false
 
@@ -139,14 +143,9 @@ if [ "$REALLY_INSTALL" != "true" ]; then
     usage
 fi
 
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run using sudo"
-    exit 1
-fi
-
 
 apt update
-DEBIAN_FRONTEND=noninteractive apt install -y samba avahi
+install_packages samba avahi-daemon
 
 configure_avahi
 configure_samba

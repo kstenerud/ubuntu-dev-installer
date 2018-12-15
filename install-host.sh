@@ -3,7 +3,8 @@ set -eu
 
 show_help()
 {
-    echo "Install software for hosting VMs and containers as a top level host.
+    echo \
+"Install software for hosting VMs and containers as a top level host.
 
 Usage: $(basename $0) [options]
 Options:
@@ -15,71 +16,8 @@ Options:
 }
 
 #####################################################################
-
-
-get_homedir()
-{
-    user=$1
-    eval echo "~$user"
-}
-
-sanitize_filename()
-{
-    filename="$(basename "$1" | tr -cd 'A-Za-z0-9_.')"
-    echo "$filename"
-}
-
-install_snaps()
-{
-    snaps="$@"
-    echo "Installing snaps: $snaps"
-    for snap in $snaps; do
-        snap install $snap
-    done
-}
-
-install_classic_snaps()
-{
-    snaps="$@"
-    echo "Installing classic snaps: $snaps"
-    for snap in $snaps; do
-        snap install $snap --classic
-    done
-}
-
-install_packages()
-{
-    packages="$@"
-    echo "Installing packages: $packages"
-    bash -c "(export DEBIAN_FRONTEND=noninteractive; apt install -y $packages)"
-}
-
-install_packages_from_urls()
-{
-    urls="$@"
-    echo "Installing URL packages: $urls"
-    for url in $urls; do
-        tmpfile="/tmp/tmp_deb_pkg_$(sanitize_filename $url).deb"
-        wget -qO $tmpfile "$url"
-        install_packages "$tmpfile"
-        rm "$tmpfile"
-    done
-}
-
-add_user_to_groups()
-{
-    username=$1
-    shift
-    groups=$@
-    echo "Adding $username to groups: $groups"
-    for group in $groups; do
-        if grep $group /etc/group >/dev/null; then
-            usermod -a -G $group $username
-        else
-            echo "WARNING: Not adding $username to group $group because it doesn't exist."
-        fi
-    done
-}
+SCRIPT_HOME=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+source $SCRIPT_HOME/common.sh "$SCRIPT_HOME"
 
 make_user_paths()
 {
@@ -104,12 +42,6 @@ add_subuid_subgid_mapping()
     if ! grep "$gid_mapping" /etc/subgid >/dev/null; then
         echo "$gid_mapping" >> /etc/subgid
     fi
-}
-
-does_user_exist()
-{
-    user=$1
-    id -u $user >/dev/null 2>&1
 }
 
 check_user()
@@ -180,6 +112,18 @@ install_gui()
         https://dl.google.com/linux/direct/chrome-remote-desktop_current_amd64.deb
 }
 
+install_real_bridge()
+{
+    eth_device=$1
+    echo "bridges:
+    br0:
+      interfaces: [$eth_device]
+      dhcp4: true
+      parameters:
+        stp: false
+        forward-delay: 0" >> /etc/netplan/01-with-bridge.yaml
+}
+
 install_virtual_bridge()
 {
     bridge_name=$1
@@ -247,13 +191,10 @@ usage()
 
 #####################################################################
 
+assert_is_root
+
 if [ $# -eq 0 ]; then
     usage
-fi
-
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run using sudo"
-    exit 1
 fi
 
 INSTALL_CONSOLE=false

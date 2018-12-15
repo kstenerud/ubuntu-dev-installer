@@ -3,7 +3,8 @@ set -eu
 
 show_help()
 {
-    echo "Bind mounts the following paths to a virtual \"home dir\":
+    echo \
+"Bind mounts the following paths to a virtual \"home dir\":
 
  * /var/lib/libvirt
  * /var/lib/lxd
@@ -23,7 +24,8 @@ Options:
 }
 
 #####################################################################
-
+SCRIPT_HOME=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+source $SCRIPT_HOME/common.sh "$0"
 
 copy_directory_contents()
 {
@@ -111,6 +113,8 @@ usage()
 
 #####################################################################
 
+assert_is_root
+
 MAP_EXISTING=false
 
 while getopts "?e" o; do
@@ -129,15 +133,7 @@ while getopts "?e" o; do
 done
 shift $((OPTIND-1))
 
-if [ $# -ne 1 ]; then
-    usage
-fi
-
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run using sudo"
-    exit 1
-fi
-
+if [ $# -ne 1 ]; then usage; fi
 VIRT_HOME_DIR="$1"
 
 echo "Backing up /etc/fstab to /etc/fstab.bak"

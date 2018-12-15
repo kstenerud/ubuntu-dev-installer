@@ -3,24 +3,20 @@ set -eu
 
 show_help()
 {
-    echo "Sets up a VPN connection via NetworkManager."
-    echo "Get your VPN credentials from https://enigma.admin.canonical.com"
-    echo
-    echo "Usage: $(basename $0) [options] <linux username> <canonical username> <region>"
-    echo "Where region is one of: tw, us, uk"
-    echo
-    echo "Options:"
-    echo "  -f <path-to-zipfile> Extract credentials from this zip file"
+    echo \
+"Sets up a VPN connection via NetworkManager.
+Get your VPN credentials from https://enigma.admin.canonical.com
+
+Usage: $(basename $0) [options] <linux username> <canonical username> <region>
+Where region is one of: tw, us, uk
+
+Options:
+  -f <path-to-zipfile> Extract credentials from this zip file"
 }
 
 #####################################################################
-
-
-get_homedir()
-{
-    user=$1
-    eval echo "~$user"
-}
+SCRIPT_HOME=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+source $SCRIPT_HOME/common.sh "$SCRIPT_HOME"
 
 check_for_existing_vpn()
 {
@@ -94,6 +90,8 @@ usage()
 
 #####################################################################
 
+assert_is_root
+
 CONFIG_ARCHIVE_FILE=
 
 while getopts "?f:" o; do
@@ -112,15 +110,7 @@ while getopts "?f:" o; do
 done
 shift $((OPTIND-1))
 
-if [ $# -ne 3 ]; then
-    usage
-fi
-
-if [ "$EUID" -ne 0 ]; then
-    echo "$(basename $0) must run using sudo"
-    exit 1
-fi
-
+if [ $# -ne 3 ]; then usage; fi
 LINUX_USER=$1
 CANONICAL_USER=$2
 REGION=$3
