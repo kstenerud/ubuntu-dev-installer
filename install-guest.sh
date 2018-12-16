@@ -59,8 +59,8 @@ install_console_software()
         flex \
         git-buildpackage \
         libvirt-clients \
-	libvirt-daemon \
-	libvirt-daemon-system \
+        libvirt-daemon \
+        libvirt-daemon-system \
         mtools \
         net-tools \
         nfs-common \
