@@ -20,7 +20,8 @@ Options:
     -k <layout:model>: Set keyboard layout and model (default $DEFAULT_KEYBOARD_LAYOUT_MODEL)
     -u <user>: Add the specified user to groups: $USER_GROUPS
     -U: Create user if it doesn't exist.
-    -p: Allow ssh users to log in using passwords."
+    -p: Allow ssh users to log in using passwords.
+    -L: Install lubuntu desktop instead of mate."
 }
 
 #####################################################################
@@ -39,6 +40,11 @@ crd_set_resolution()
 install_desktop_environment()
 {
     resolution=$1
+    wants_lubuntu=$2
+    desktop_package=ubuntu-mate-desktop
+    if (( $wants_lxde )); then
+        desktop_package=lubuntu-desktop
+    fi
 
     echo "Installing virtual desktop software..."
 
@@ -108,8 +114,9 @@ SET_KEYBOARD_LAYOUT_MODEL=$DEFAULT_KEYBOARD_LAYOUT_MODEL
 SETUP_FOR_USER=
 FORCE_CREATE_USER=0
 VIRTUAL_RESOLUTION=$DEFAULT_VIRTUAL_RESOLUTION
+WANTS_LUBUNTU_DESKTOP=0
 
-while getopts "?pr:t:l:k:u:U" o; do
+while getopts "?pr:t:l:k:u:UL" o; do
     case "$o" in
         \?)
             show_help
@@ -135,6 +142,9 @@ while getopts "?pr:t:l:k:u:U" o; do
             ;;
         p)
             WANTS_SSH_PASSWORD_AUTH=1
+            ;;
+        L)
+            WANTS_LUBUNTU_DESKTOP=1
             ;;
         *)
             usage
@@ -168,7 +178,7 @@ if [ ! -z "$SET_TIMEZONE" ] || [ ! -z "$SET_LANGUAGE_REGION" ] || [ ! -z "$SET_K
     fi
 fi
 
-install_desktop_environment $VIRTUAL_RESOLUTION
+install_desktop_environment $VIRTUAL_RESOLUTION $WANTS_LUBUNTU_DESKTOP
 
 if [ ! -z "$SETUP_FOR_USER" ]; then
     add_user_to_groups $SETUP_FOR_USER $USER_GROUPS
