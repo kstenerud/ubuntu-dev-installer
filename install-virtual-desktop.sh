@@ -53,7 +53,7 @@ install_desktop_environment()
     disable_services bluetooth
     install_packages
 
-    install_packages software-properties-common ubuntu-mate-desktop openssh-server
+    install_packages software-properties-common openssh-server $desktop_package
     remove_packages light-locker
     
     install_packages_from_repository ppa:x2go/stable \
