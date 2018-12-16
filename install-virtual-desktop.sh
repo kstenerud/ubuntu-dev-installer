@@ -40,9 +40,9 @@ crd_set_resolution()
 install_desktop_environment()
 {
     resolution=$1
-    wants_lubuntu=$2
+    wants_lubuntu_desktop=$2
     desktop_package=ubuntu-mate-desktop
-    if (( $wants_lxde )); then
+    if (( $wants_lubuntu_desktop )); then
         desktop_package=lubuntu-desktop
     fi
 
