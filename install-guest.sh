@@ -58,7 +58,9 @@ install_console_software()
         dpkg-dev \
         flex \
         git-buildpackage \
-        libvirt-bin \
+        libvirt-clients \
+	libvirt-daemon \
+	libvirt-daemon-system \
         mtools \
         net-tools \
         nfs-common \
