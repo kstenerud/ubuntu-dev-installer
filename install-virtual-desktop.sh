@@ -92,6 +92,7 @@ check_user_exists()
     if ! does_user_exist $user; then
         if (( $force_create )); then
             useradd --create-home --shell /bin/bash --user-group $user
+            echo ${user}:${user} | chpasswd
         else
             echo "User $user doesn't exist. Please use -U switch to create." 1>&2
             return 1
