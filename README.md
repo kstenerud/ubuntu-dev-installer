@@ -130,3 +130,26 @@ This will create a fully virtualized Mate desktop environment with Ubuntu dev to
     cd ubuntu-dev-installer
     ./install-guest.sh -d -t Europe/Berlin -l en:US -k us:pc105 -u karl -U
     ./configure-dev-user.sh -g karl
+
+
+
+Errors
+------
+
+If you attempt to install a snap inside of a nested LXD container, you'll get this kind of error:
+
+    error: cannot perform the following tasks:
+    - Setup snap "core" (6034) security profiles (cannot setup apparmor for snap "core": cannot load apparmor profile "snap-update-ns.core": cannot load apparmor profile: exit status 1
+    apparmor_parser output:
+    Cache read/write disabled: interface file missing. (Kernel needs AppArmor 2.4 compatibility patch.)
+    Warning: unable to find a suitable fs in /proc/mounts, is it mounted?
+    Use --subdomainfs to override.
+    )
+    - Setup snap "core" (6034) security profiles (cannot load apparmor profile "snap-update-ns.core": cannot load apparmor profile: exit status 1
+    apparmor_parser output:
+    Cache read/write disabled: interface file missing. (Kernel needs AppArmor 2.4 compatibility patch.)
+    Warning: unable to find a suitable fs in /proc/mounts, is it mounted?
+    Use --subdomainfs to override.
+    )
+
+There is currently no workaround for this.
