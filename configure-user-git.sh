@@ -30,17 +30,21 @@ LAUNCHPAD_NAME="$4"
 
 assert_user_exists $USERNAME
 
-gitconfig="$(path_from_homedir $USERNAME .gitconfig)"
+# Essentials
 
-add_to_file_if_not_found $USERNAME "$gitconfig" "[log]" \
-"[log]
-    decorate = short"
+git config --global user.name "${FULL_NAME}"
+git config --global user.email "${EMAIL}"
 
-add_to_file_if_not_found $USERNAME "$gitconfig" "[user]" \
-"[user]
-    name = ${FULL_NAME}
-    email = ${EMAIL}"
+git config --global gitubuntu.lpuser "${LAUNCHPAD_NAME}"
 
-add_to_file_if_not_found $USERNAME "$gitconfig" "[gitubuntu]" \
-"[gitubuntu]
-    lpuser = ${LAUNCHPAD_NAME}"
+# Optional but useful
+
+git config --global log.decorate "short"
+
+git config --global core.excludesfile ~/.gitignore_global
+
+gitignore="$(path_from_homedir $USERNAME .gitignore_global)"
+touch "$gitignore"
+
+# .pc is an artifact from quilt
+ensure_file_contains $USERNAME "$gitignore" ".pc"
