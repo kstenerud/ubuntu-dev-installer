@@ -83,6 +83,7 @@ install_console_software()
         quilt \
         rsnapshot \
         sbuild \
+        sbuild-launchpad-chroot \
         snapcraft \
         squashfuse \
         tshark \

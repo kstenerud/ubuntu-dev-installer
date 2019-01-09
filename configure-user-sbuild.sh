@@ -112,8 +112,12 @@ init_file_with_contents $USERNAME "$(path_from_homedir $USERNAME .sbuildrc)" \
 # \$purge_session = 'never';
 # \$purge_build_deps = 'never';
 
+# Directory for chroot symlinks and sbuild logs.  Defaults to the
+# current directory if unspecified.
+\$build_dir='$mount_point/build';
+
 # Directory for writing build logs to
-\$log_dir=\"$mount_point/logs\";
+\$log_dir='$mount_point/logs';
 
 # don't remove this, Perl needs it:
 1;
