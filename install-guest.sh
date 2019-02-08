@@ -58,6 +58,7 @@ install_console_software()
         dpkg-dev \
         flex \
         git-buildpackage \
+        libnss-libvirt \
         libvirt-clients \
         libvirt-daemon \
         libvirt-daemon-system \

@@ -90,6 +90,7 @@ install_console()
 
     install_packages \
         git \
+        libnss-libvirt \
         libvirt-clients \
         libvirt-daemon-system \
         qemu-kvm \
