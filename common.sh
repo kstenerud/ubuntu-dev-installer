@@ -1,5 +1,36 @@
 SCRIPT_NAME=$1
 
+is_numeric()
+{
+    case "$1" in
+        ''|*[!0-9]*) return 1 ;;
+        *) return 0 ;;
+    esac
+}
+
+get_colon_separated_arguments()
+{
+    subargcount="$1"
+    argument="$2"
+
+    pattern="\\(.*\\)"
+    replace="\1"
+    if [ $subargcount -gt 1 ]; then
+        for i in $(seq 2 $subargcount); do
+            pattern="\\([^:]*\\):$pattern"
+            replace="$replace \\$i"
+        done
+    fi
+
+    sed_cmd="s/$pattern/$replace/g"
+    params="$(echo "$argument"|sed "$sed_cmd")"
+    if [ "$params" != "$argument" ]; then
+        echo "$params"
+    else
+        echo
+    fi
+}
+
 disable_services()
 {
     service_names="$@"
@@ -245,4 +276,127 @@ set_keyboard_layout_model()
 
     echo "keyboard-configuration keyboard-configuration/layoutcode string ${kb_layout}" | debconf-set-selections
     echo "keyboard-configuration keyboard-configuration/modelcode string ${kb_model}" | debconf-set-selections
+}
+
+
+# ---
+# LXD
+# ---
+
+lxc_is_guest_network_up()
+{
+    guest_name="$1"
+    lxc exec "$guest_name" -- grep $'\t0003\t' /proc/net/route >/dev/null
+}
+
+lxc_wait_for_guest_network()
+{
+    guest_name="$1"
+    until lxc_is_guest_network_up "$guest_name";
+    do
+        echo "Waiting for network"
+        sleep 1
+    done
+}
+
+lxc_warn_if_uid_gid_map_not_enabled()
+{
+    id="$1"
+    file="$2"
+
+    user=root
+    while read line; do
+        if [ -z "$line" ]; then continue; fi
+        fields=($(get_colon_separated_arguments 3 $line))
+        if [ "${fields[0]}" != "$user" ]; then continue; fi
+        if [ "${fields[1]}" == "$id" ]; then return; fi
+    done < "$file"
+    echo "WARNING: You'll need to add permission for $user to share id $id in $file:"
+    echo "    $user:$id:1"
+    echo "The container may fail to operate correctly without it."
+}
+
+lxc_get_host_uid()
+{
+    name="$1"
+    if is_numeric "$name"; then
+        echo "$name"
+    else
+        id -u "$name"
+    fi
+}
+
+lxc_get_host_gid()
+{
+    group="$1"
+    if is_numeric "$group"; then
+        echo "$group"
+    else
+        id -g "$group"
+    fi
+}
+
+lxc_get_guest_uid()
+{
+    container_name="$1"
+    name="$2"
+    if is_numeric "$name"; then
+        echo "$name"
+    else
+        lxc exec $container_name -- id -u "$name"
+    fi
+}
+
+lxc_get_guest_gid()
+{
+    container_name="$1"
+    group="$2"
+    if is_numeric "$group"; then
+        echo "$group"
+    else
+        lxc exec $container_name -- id -g "$group"
+    fi
+}
+
+lxc_map_guest_user_to_host()
+{
+    container_name="$1"
+    guest_user="$2"
+    guest_group="$3"
+    host_user="$4"
+    host_group="$5"
+
+    guest_uid="$(lxc_get_guest_uid $container_name $guest_user)"
+    host_uid="$(lxc_get_host_uid $host_user)"
+    guest_gid="$(lxc_get_guest_gid $container_name $guest_group)"
+    host_gid="$(lxc_get_host_gid $host_group)"
+
+    lxc_warn_if_uid_gid_map_not_enabled $host_uid /etc/subuid
+    lxc_warn_if_uid_gid_map_not_enabled $host_gid /etc/subgid
+
+    current_idmap="$(lxc config get $container_name raw.idmap)"
+    new_idmap=$(printf "uid %s %s\ngid %s %s" $host_uid $guest_uid $host_gid $guest_gid)
+    if [ ! -z "$current_idmap" ]; then
+        new_idmap=$(printf "%s\n%s" "$current_idmap" "$new_idmap")
+    fi
+
+    echo "Mapping guest $guest_user:$guest_group ($guest_uid:$guest_gid) to host $host_user:$host_group ($host_uid:$host_gid)"
+    lxc config set $container_name raw.idmap "$new_idmap"
+}
+
+lxc_mount_host() {
+    container_name="$1"
+    device_name="$2"
+    host_path="$3"
+    mount_point="$4"
+
+    mkdir -p "$host_path"
+    lxc exec $container_name -- mkdir -p "$mount_point"
+    lxc config device add $container_name $device_name disk source="$host_path" path="$mount_point"
+}
+
+lxc_set_autostart()
+{
+    container_name="$1"
+    lxc config set $container_name boot.autostart 1
 }
