@@ -36,7 +36,7 @@ disable_services()
     service_names="$@"
     for service in $service_names; do
         echo "Disabling service $service"
-        systemctl disable $service || true
+        sudo systemctl disable $service || true
     done
 }
 
@@ -97,7 +97,7 @@ init_file_with_contents()
 
     if [ ! -f "$file" ]; then
         echo "$contents" >> "$file"
-        chown $owner:$owner "$file"
+        sudo chown $owner:$owner "$file"
     else
         echo "$file already exists, not replacing."
     fi
@@ -119,7 +119,7 @@ install_snaps()
     snaps="$@"
     echo "Installing snaps: $snaps"
     for snap in $snaps; do
-        snap install $(echo $snap | sed 's/:/ --/g')
+        sudo snap install $(echo $snap | sed 's/:/ --/g')
     done
 }
 
@@ -128,23 +128,23 @@ add_repositories()
     repositories="$@"
     echo "Adding repositories $repositories"
     for repo in $repositories; do
-        add-apt-repository -y $repo
+        sudo add-apt-repository -y $repo
     done
-    apt update
+    sudo apt update
 }
 
 install_packages()
 {
     packages="$@"
     echo "Installing packages: $packages"
-    bash -c "(export DEBIAN_FRONTEND=noninteractive; apt install -y $packages)"
+    bash -c "(export DEBIAN_FRONTEND=noninteractive; sudo apt install -y $packages)"
 }
 
 remove_packages()
 {
     packages="$@"
     echo "Removing packages $packages"
-    apt remove -y $packages
+    sudo apt remove -y $packages
 }
 
 install_packages_from_repository()
@@ -219,7 +219,7 @@ chown_homedir()
 {
     username=$1
 
-    chown -R $username:$(id -g $username) "$(get_homedir $username)" || true
+    sudo chown -R $username:$(id -g $username) "$(get_homedir $username)" || true
 }
 
 add_user_to_groups()
@@ -230,7 +230,7 @@ add_user_to_groups()
     echo "Adding $username to groups: $groups"
     for group in $groups; do
         if grep $group /etc/group >/dev/null; then
-            usermod -a -G $group $username
+            sudo usermod -a -G $group $username
         else
             echo "WARNING: Not adding group $group because it doesn't exist."
         fi
