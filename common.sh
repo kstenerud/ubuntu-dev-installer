@@ -119,7 +119,7 @@ install_snaps()
     snaps="$@"
     echo "Installing snaps: $snaps"
     for snap_pkg in $snaps; do
-        snap install $(echo $snap_pkg | sed 's/:/ --/g')
+        sudo snap install $(echo $snap_pkg | sed 's/:/ --/g')
     done
 }
 

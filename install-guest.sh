@@ -34,6 +34,8 @@ install_console_software()
 {
     echo "Installing console software..."
 
+    install_packages snapd
+
     install_snaps \
         docker \
         git-ubuntu:classic:edge \
