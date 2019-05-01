@@ -44,6 +44,7 @@ install_console_software()
         ustriage:classic
 
     install_packages \
+        apt-rdepends \
         apache2-dev \
         apt-cacher-ng \
         autoconf \
@@ -89,10 +90,14 @@ install_console_software()
         sbuild-launchpad-chroot \
         snapcraft \
         squashfuse \
+        tree \
         tshark \
         ubuntu-dev-tools \
         uvtool \
         virtinst
+
+    # Use LIBVIRT instead of QEMU due to bug launching disco
+    snap set multipass driver=LIBVIRT
 
     echo 'Acquire::http::Proxy "http://127.0.0.1:3142";' | sudo tee /etc/apt/apt.conf.d/01acng
 }

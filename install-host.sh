@@ -79,29 +79,32 @@ setup_user()
 
 install_console()
 {
-    install_snaps \
-        docker \
-        lxd
-
-    # Needed because the snap doesn't add it
-    groupadd docker
-
-    snap install multipass --beta --classic
-
     install_packages \
         git \
         libnss-libvirt \
         libvirt-clients \
         libvirt-daemon-system \
         qemu-kvm \
+        tree \
         uvtool \
         virtinst
+
+    install_snaps \
+        docker \
+        lxd \
+        multipass:classic:beta
+
+    # Needed because the snap doesn't add it
+    groupadd docker
+
+    # Use LIBVIRT instead of QEMU due to bug launching disco
+    snap set multipass driver=LIBVIRT
 }
 
 install_gui()
 {
-    install_classic_snaps \
-        sublime-text
+    install_snaps \
+        sublime-text:classic
 
     install_packages \
         remmina \
