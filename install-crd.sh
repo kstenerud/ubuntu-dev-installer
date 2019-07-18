@@ -1,6 +1,8 @@
 #!/bin/bash
 set -eu
 
+# https://cloud.google.com/solutions/chrome-desktop-remote-on-compute-engine
+
 DEFAULT_VIRTUAL_RESOLUTION=1920x1080
 
 show_help()
@@ -10,13 +12,26 @@ show_help()
 
 Usage: $(basename $0) [options]
 Options:
-    -r <resolution>: Chrome Remote Desktop screen resolution (default $DEFAULT_VIRTUAL_RESOLUTION)"
+    -r <resolution>: Chrome Remote Desktop screen resolution (default $DEFAULT_VIRTUAL_RESOLUTION)
+"
+    show_after_help
 }
 
 #####################################################################
 SCRIPT_HOME=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 source $SCRIPT_HOME/common.sh "$SCRIPT_HOME"
 
+show_after_help()
+{
+    echo "To authorize CRD, go to https://remotedesktop.google.com/headless"
+    echo
+    echo "SSH Password authentication might be disabled by default. To enable it:"
+    echo "sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config"
+    echo "systemctl restart sshd"
+    echo
+    echo "To set up CRD default resolution in your home dir:"
+    echo "echo \"export CHROME_REMOTE_DESKTOP_DEFAULT_DESKTOP_SIZES=$VIRTUAL_RESOLUTION\" >> ~/.profile"
+}
 
 crd_set_resolution()
 {
@@ -35,16 +50,12 @@ install_crd()
         x2goclient
 
     install_packages_from_urls \
-            https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
             https://dl.google.com/linux/direct/chrome-remote-desktop_current_amd64.deb
+            # https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
 
     crd_set_resolution $resolution
 
-    echo "First time connection to the virtual desktop must be done using x2go. Once logged in, you can set up chrome remote desktop."
-    echo
-    echo "SSH Password authentication may be disabled by default. To enable it:"
-    echo " * modify PasswordAuthentication in /etc/ssh/sshd_config"
-    echo " * systemctl restart sshd"
+    show_after_help
 }
 
 usage()
