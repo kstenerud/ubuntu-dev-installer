@@ -90,15 +90,13 @@ install_console()
         virtinst
 
     install_snaps \
-        docker \
-        lxd \
-        multipass:classic:beta
+        docker
 
     # Needed because the snap doesn't add it
     groupadd docker
 
     # Use LIBVIRT instead of QEMU due to bug launching disco
-    snap set multipass driver=LIBVIRT
+    # snap set multipass driver=LIBVIRT
 }
 
 install_gui()

@@ -81,7 +81,7 @@ install_console_software()
         virtinst
 
     # Use LIBVIRT instead of QEMU due to bug launching disco
-    snap set multipass driver=LIBVIRT
+    # snap set multipass driver=LIBVIRT
 
     echo 'Acquire::http::Proxy "http://127.0.0.1:3142";' | sudo tee /etc/apt/apt.conf.d/01acng
 }
