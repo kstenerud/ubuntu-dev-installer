@@ -44,7 +44,7 @@ crd_set_resolution()
 install_crd()
 {
     resolution=$1
-    install_packages_from_repository ppa:x2go/stable \
+    install_packages \
         x2goserver \
         x2goserver-xsession \
         x2goclient

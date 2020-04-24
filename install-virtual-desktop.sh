@@ -56,7 +56,7 @@ install_desktop_environment()
     install_packages software-properties-common openssh-server $desktop_package
     remove_packages light-locker
     
-    install_packages_from_repository ppa:x2go/stable \
+    install_packages \
         x2goserver \
         x2goserver-xsession \
         x2goclient

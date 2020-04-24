@@ -34,14 +34,6 @@ install_console_software()
 {
     echo "Installing console software..."
 
-    install_packages snapd
-
-    install_snaps \
-        docker \
-        git-ubuntu:classic:edge \
-        lxd \
-        multipass:classic:beta \
-        ustriage:classic
 
     install_packages \
         apt-rdepends \
@@ -53,14 +45,12 @@ install_console_software()
         bridge-utils \
         build-essential \
         cmake \
-        cpu-checker \
         debconf-utils \
         debmake \
         devscripts \
         dh-make \
         dpkg-dev \
         flex \
-        git-buildpackage \
         libnss-libvirt \
         libvirt-clients \
         libvirt-daemon \
@@ -76,7 +66,6 @@ install_console_software()
         python3-argcomplete \
         python3-launchpadlib \
         python3-lazr.restfulclient \
-        python3-petname \
         python3-pip \
         python3-pkg-resources \
         python3-pygit2 \
@@ -86,14 +75,9 @@ install_console_software()
         qemu-kvm \
         quilt \
         rsnapshot \
-        sbuild \
-        sbuild-launchpad-chroot \
-        snapcraft \
-        squashfuse \
         tree \
         tshark \
         ubuntu-dev-tools \
-        uvtool \
         virtinst
 
     # Use LIBVIRT instead of QEMU due to bug launching disco
@@ -142,7 +126,7 @@ install_desktop_environment()
     install_packages software-properties-common ubuntu-mate-desktop openssh-server
     remove_packages light-locker
     
-    install_packages_from_repository ppa:x2go/stable \
+    install_packages \
         x2goserver \
         x2goserver-xsession \
         x2goclient
@@ -253,21 +237,21 @@ if [ ! -z "$SETUP_FOR_USER" ]; then
     check_user_exists "$SETUP_FOR_USER" $FORCE_CREATE_USER
 fi
 
-if [ ! -z "$SET_TIMEZONE" ] || [ ! -z "$SET_LANGUAGE_REGION" ] || [ ! -z "$SET_KEYBOARD_LAYOUT_MODEL" ]; then
-    install_packages locales tzdata debconf software-properties-common
+# if [ ! -z "$SET_TIMEZONE" ] || [ ! -z "$SET_LANGUAGE_REGION" ] || [ ! -z "$SET_KEYBOARD_LAYOUT_MODEL" ]; then
+#     install_packages locales tzdata debconf software-properties-common
 
-    if [ ! -z "$SET_TIMEZONE" ]; then
-        set_timezone "$SET_TIMEZONE"
-    fi
+#     if [ ! -z "$SET_TIMEZONE" ]; then
+#         set_timezone "$SET_TIMEZONE"
+#     fi
 
-    if [ ! -z "$SET_LANGUAGE_REGION" ]; then
-        set_language_region $(echo $SET_LANGUAGE_REGION | tr ":" " ")
-    fi
+#     if [ ! -z "$SET_LANGUAGE_REGION" ]; then
+#         set_language_region $(echo $SET_LANGUAGE_REGION | tr ":" " ")
+#     fi
 
-    if [ ! -z "$SET_KEYBOARD_LAYOUT_MODEL" ]; then
-        set_keyboard_layout_model $(echo $SET_KEYBOARD_LAYOUT_MODEL | tr ":" " ")
-    fi
-fi
+#     if [ ! -z "$SET_KEYBOARD_LAYOUT_MODEL" ]; then
+#         set_keyboard_layout_model $(echo $SET_KEYBOARD_LAYOUT_MODEL | tr ":" " ")
+#     fi
+# fi
 
 install_console_software
 
